@@ -134,7 +134,32 @@ namespace Personel_accounting
         {
             Application.Exit();
         }
-        // Удалить сотрудника из базы данных (в дальнейшей разработке)
+        // Удалить сотрудника из базы данных
+                private void УдалитьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Удалить сотрудника?", "Информация", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+            {
+
+                int a = table.CurrentRow.Index; // Выделенная строка в таблице
+
+                string id_table = Convert.ToString(table.Rows[a].Cells[0].Value); // номер строки для удаления
+
+                string sql_delete = string.Format("DELETE FROM Сотрудник WHERE ([Код сотрудника]) = {0}", id_table); // запрос на удаление в БД
+
+                my_command = new SqlCommand(sql_delete, my_conn);
+
+                my_conn.Open(); // Открытие соединения с базой данных 
+
+                my_command.ExecuteNonQuery(); // sql возвращает сколько строк обработано
+
+                my_conn.Close();
+
+                Loading();
+
+                MessageBox.Show("Операция выполнена!", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information); // Вывод сообщения об удалении
+            }
+        }
+
         // Поиск сотрудника по фамилии
         private void search_TextChanged(object sender, EventArgs e)
         {
@@ -158,7 +183,71 @@ namespace Personel_accounting
         {
             MessageBox.Show("Данная программа предназначена для кадрового учета транспортной компании!", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information); // Вывод сообщения
         }
-        // Открыть личную карточку (В дальнейшей разработке)
+        // Открыть личную карточку
+                private void личнаяКарточкаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+
+                int a = table.CurrentRow.Index; // Выделенная строка в таблице
+                int b = table_1.CurrentRow.Index; // Выделенная строка в таблице
+                int c = table_2.CurrentRow.Index; // Выделенная строка в таблице
+
+                //Переменные для хранения данных
+                string FO = table.Rows[a].Cells[1].Value.ToString();
+                string Data = ((DateTime)table.Rows[a].Cells[2].Value).ToLongDateString();
+                string Zav = table_1.Rows[b].Cells[1].Value.ToString();
+                string Diplom_n = table_1.Rows[b].Cells[2].Value.ToString();
+                string Diplom_g = table_1.Rows[b].Cells[3].Value.ToString();
+                string Kval = table_1.Rows[b].Cells[4].Value.ToString();
+                string Dol = table.Rows[a].Cells[5].Value.ToString();
+                string Nomer = table.Rows[a].Cells[0].Value.ToString();
+                string Nomer_1 = table.Rows[a].Cells[0].Value.ToString();
+                string Polog = table.Rows[a].Cells[6].Value.ToString();
+                string Rod = table_2.Rows[c].Cells[1].Value.ToString();
+                string dRod = ((DateTime)table_2.Rows[c].Cells[2].Value).ToLongDateString();
+                string Adres = table.Rows[a].Cells[3].Value.ToString();
+                string Number = table.Rows[a].Cells[4].Value.ToString();
+                string nomer_seria = table.Rows[a].Cells[7].Value.ToString();
+                string data_vidachi = ((DateTime)table.Rows[c].Cells[9].Value).ToLongDateString();
+                string organ = table.Rows[a].Cells[8].Value.ToString();
+
+                var wordApp = new Microsoft.Office.Interop.Word.Application();//переменная для word
+                wordApp.Visible = true; // открытие Word
+
+                try
+                {
+                    var wordDocument = wordApp.Documents.Open(System.AppDomain.CurrentDomain.BaseDirectory + "Карточка.doc");//переменная для хранения нашего документа
+
+                    //Вставка вмето специальных выражений в нашем файле
+                    ReplaceWordsStub("@FO", FO, wordDocument);
+                    ReplaceWordsStub("@Data", Data, wordDocument);
+                    ReplaceWordsStub("@Zav", Zav, wordDocument);
+                    ReplaceWordsStub("@Diplom_n", Diplom_n, wordDocument);
+                    ReplaceWordsStub("@Diplom_g", Diplom_g, wordDocument);
+                    ReplaceWordsStub("@Kval", Kval, wordDocument);
+                    ReplaceWordsStub("@Dol", Dol, wordDocument);
+                    ReplaceWordsStub("@Nomer", Nomer, wordDocument);
+                    ReplaceWordsStub("@Nomer_1", Nomer, wordDocument);
+                    ReplaceWordsStub("@Polog", Polog, wordDocument);
+                    ReplaceWordsStub("@Rod", Rod, wordDocument);
+                    ReplaceWordsStub("@dRod", dRod, wordDocument);
+                    ReplaceWordsStub("@Adres", Adres, wordDocument);
+                    ReplaceWordsStub("@Number", Number, wordDocument);
+                    ReplaceWordsStub("@nomer_seria", nomer_seria, wordDocument);
+                    ReplaceWordsStub("@data_vidachi", data_vidachi, wordDocument);
+                    ReplaceWordsStub("@organ", organ, wordDocument);
+                }
+                catch { };
+            }
+            catch { };
+        }
+        private void ReplaceWordsStub(string stubToReplace, string text, Microsoft.Office.Interop.Word.Document wordDocument)
+        {
+            var range = wordDocument.Content;//перменная для хранения данных документа
+            range.Find.ClearFormatting();//метод сброса всех натсроек текста
+            range.Find.Execute(FindText: stubToReplace, ReplaceWith: text);//находим ключевые слова и заменяем их
+        }
         // Открытие формы отпуск
         private void отпускToolStripMenuItem_Click(object sender, EventArgs e)
         {
